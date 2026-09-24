@@ -390,6 +390,17 @@ body {
   padding: 1.75rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transition: border-color 0.3s ease;
+  position: relative;
+}
+
+#searchSection {
+  position: relative;
+  z-index: 100;
+}
+
+#resultsSection {
+  position: relative;
+  z-index: 1;
 }
 
 .glass-card:hover {
@@ -412,6 +423,12 @@ body {
 
 .custom-select-wrapper {
   position: relative;
+  z-index: 110;
+}
+
+.custom-select-wrapper:focus-within,
+.custom-select-wrapper.is-open {
+  z-index: 500;
 }
 
 .input-with-icon {
@@ -470,22 +487,23 @@ body {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  right: 0;
+  min-width: 320px;
+  width: 100%;
   background: #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(56, 189, 248, 0.45);
   border-radius: var(--radius-sm);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.25);
   max-height: 290px;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 999999;
   display: none;
   scrollbar-width: thin;
 }
 
 [data-theme="light"] .airport-dropdown {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  border: 1.5px solid #0284c7;
+  box-shadow: 0 20px 45px rgba(2, 132, 199, 0.25), 0 10px 25px rgba(0, 0, 0, 0.18);
 }
 
 .airport-dropdown.show {

@@ -222,6 +222,7 @@ class TixxgoApp {
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.custom-select-wrapper')) {
         document.querySelectorAll('.airport-dropdown').forEach(d => d.classList.remove('show'));
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('is-open'));
       }
     });
   }
@@ -230,9 +231,26 @@ class TixxgoApp {
     const textInput = document.getElementById(textInputId);
     const hiddenInput = document.getElementById(hiddenInputId);
     const dropdown = document.getElementById(dropdownId);
+    const wrapper = textInput ? textInput.closest('.custom-select-wrapper') : null;
     if (!textInput || !dropdown) return;
 
     let activeIndex = -1;
+
+    const openDropdown = () => {
+      document.querySelectorAll('.airport-dropdown').forEach(d => {
+        if (d !== dropdown) d.classList.remove('show');
+      });
+      document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+        if (w !== wrapper) w.classList.remove('is-open');
+      });
+      dropdown.classList.add('show');
+      if (wrapper) wrapper.classList.add('is-open');
+    };
+
+    const closeDropdown = () => {
+      dropdown.classList.remove('show');
+      if (wrapper) wrapper.classList.remove('is-open');
+    };
 
     const renderList = (filterText = '') => {
       const q = filterText.trim().toLowerCase();
@@ -266,24 +284,25 @@ class TixxgoApp {
           const label = item.getAttribute('data-label');
           textInput.value = label;
           if (hiddenInput) hiddenInput.value = code;
-          dropdown.classList.remove('show');
+          closeDropdown();
           this.handleSearch();
         });
       });
     };
 
     textInput.addEventListener('focus', () => {
-      document.querySelectorAll('.airport-dropdown').forEach(d => {
-        if (d !== dropdown) d.classList.remove('show');
-      });
       activeIndex = -1;
       renderList('');
-      dropdown.classList.add('show');
+      openDropdown();
       textInput.select();
     });
 
+    textInput.addEventListener('click', () => {
+      openDropdown();
+    });
+
     textInput.addEventListener('input', () => {
-      dropdown.classList.add('show');
+      openDropdown();
       activeIndex = -1;
       renderList(textInput.value);
     });
@@ -315,16 +334,16 @@ class TixxgoApp {
           textInput.value = label;
           if (hiddenInput) hiddenInput.value = code;
         }
-        dropdown.classList.remove('show');
+        closeDropdown();
         this.handleSearch();
       } else if (e.key === 'Escape') {
-        dropdown.classList.remove('show');
+        closeDropdown();
       }
     });
 
     textInput.addEventListener('blur', () => {
       setTimeout(() => {
-        dropdown.classList.remove('show');
+        closeDropdown();
         const raw = textInput.value.trim();
         if (!raw) return;
 
