@@ -185,35 +185,37 @@ body {
 
 /* Theme Toggle Button */
 .theme-toggle-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
+  background: rgba(56, 189, 248, 0.15);
+  border: 1.5px solid var(--accent-cyan);
+  color: #ffffff;
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
 }
 
 .theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(56, 189, 248, 0.28);
   transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
 }
 
 [data-theme="light"] .theme-toggle-btn {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #0284c7;
   color: #0f172a;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.18);
 }
 
 [data-theme="light"] .theme-toggle-btn:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
+  background: #f0f9ff;
+  border-color: #0369a1;
 }
 
 /* Glassmorphism Header */
