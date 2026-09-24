@@ -21,11 +21,35 @@ class TixxgoApp {
       simulateFailureNext: false
     };
 
+    // Theme Management (Light / Dark)
+    this.theme = localStorage.getItem('tixxgo-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    this.applyTheme(this.theme);
+
     this.init();
+  }
+
+  toggleTheme() {
+    const nextTheme = this.theme === 'dark' ? 'light' : 'dark';
+    this.setTheme(nextTheme);
+  }
+
+  setTheme(theme) {
+    this.theme = theme;
+    localStorage.setItem('tixxgo-theme', theme);
+    this.applyTheme(theme);
+  }
+
+  applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = theme === 'light' ? '☀️' : '🌙';
+    if (label) label.textContent = theme === 'light' ? 'Light' : 'Dark';
   }
 
   async init() {
     console.log('[TixxgoApp] Initializing travel platform client...');
+    this.applyTheme(this.theme);
     this.bindEvents();
     await this.fetchSimulationFlags();
     await this.loadBookings();
