@@ -103,3 +103,7 @@ test('Task 6: Supplier timeout moves to SUPPLIER_UNKNOWN and reconciles safely w
   assert.strictEqual(reconciledBooking.bookingStatus, 'BOOKING_CONFIRMED');
   assert.strictEqual(reconciledBooking.ticketingStatus, 'ISSUED');
 });
+
+test.after(async () => {
+  await db.close();
+});

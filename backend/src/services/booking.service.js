@@ -42,7 +42,7 @@ class BookingService {
     }
 
     const bookingReference = this.generateBookingReference();
-    const trackingId = `TRK-${bookingReference}-${Date.now()}`;
+    const trackingId = `TRK-${bookingReference}`;
     const bookingId = crypto.randomUUID();
 
     // 2. Initialize Booking Record in Database (Task 4)

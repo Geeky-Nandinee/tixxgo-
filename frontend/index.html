@@ -108,29 +108,6 @@
               <span>Find Flights</span>
             </button>
           </div>
-
-          <!-- Assessment Simulation Controls Bar -->
-          <div class="simulation-banner">
-            <span style="font-weight: 700; font-size: 0.82rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
-              ⚙️ Assessment Simulation Lab:
-            </span>
-            <label class="sim-toggle">
-              <input type="checkbox" id="simMultiSupplier" checked onchange="app.toggleMultiSupplier(this.checked)">
-              <span>Multi-Supplier Mode (Task 8 & 9)</span>
-            </label>
-            <label class="sim-toggle">
-              <input type="checkbox" id="simPriceChange" checked onchange="app.updateSimulationFlag('priceChangeActive', this.checked)">
-              <span>Price Change Simulation (Task 3)</span>
-            </label>
-            <label class="sim-toggle">
-              <input type="checkbox" id="simTimeout" onchange="app.updateSimulationFlag('simulateTimeoutNext', this.checked)">
-              <span>Timeout Simulation (Task 6)</span>
-            </label>
-            <label class="sim-toggle">
-              <input type="checkbox" id="simFailure" onchange="app.updateSimulationFlag('simulateFailureNext', this.checked)">
-              <span>Supplier Reject/Refund (Task 5)</span>
-            </label>
-          </div>
         </form>
       </section>
 

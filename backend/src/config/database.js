@@ -14,6 +14,9 @@ class DatabaseManager {
   }
 
   async initialize() {
+    if (this.initialized) return;
+    this.initialized = true;
+
     try {
       // 1. First connect to MySQL server to auto-create database if not exists
       const initConn = await mysql.createConnection({
@@ -341,6 +344,15 @@ class DatabaseManager {
       };
     } else {
       return this.memoryStore.cancellations.get(bookingReference) || null;
+    }
+  }
+
+  async close() {
+    if (this.pool) {
+      await this.pool.end();
+      this.pool = null;
+      this.isMySql = false;
+      this.initialized = false;
     }
   }
 }

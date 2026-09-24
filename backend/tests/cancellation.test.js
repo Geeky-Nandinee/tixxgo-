@@ -52,3 +52,7 @@ test('Task 7: Cancellation & Refund workflow generates quote and executes state 
   assert.ok(auditActions.includes('REFUND_QUEUED'));
   assert.ok(auditActions.includes('REFUND_COMPLETED'));
 });
+
+test.after(async () => {
+  await db.close();
+});

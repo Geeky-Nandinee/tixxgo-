@@ -100,20 +100,7 @@ class SupplierGateway {
    */
   async createBooking(supplierCode, bookingPayload) {
     const adapter = this.getAdapter(supplierCode);
-    
-    // Timeout wrapper to simulate realistic network boundary
-    return await Promise.race([
-      adapter.createBooking(bookingPayload),
-      new Promise((_, reject) => {
-        // If forceTimeout flag was passed, immediate or timeout after delay
-        if (bookingPayload.forceTimeout) {
-          const timeoutErr = new Error(`Supplier ${supplierCode} Gateway Timeout: Exceeded ${env.SUPPLIER_TIMEOUT_MS}ms`);
-          timeoutErr.code = 'ETIMEDOUT';
-          timeoutErr.isTimeout = true;
-          setTimeout(() => reject(timeoutErr), 1500);
-        }
-      })
-    ]);
+    return await adapter.createBooking(bookingPayload);
   }
 
   /**

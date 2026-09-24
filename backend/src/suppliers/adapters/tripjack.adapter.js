@@ -2,6 +2,31 @@ const ISupplierAdapter = require('../supplier.interface');
 const tripjackMock = require('../mocks/tripjack.mock');
 const PricingEngine = require('../../services/pricing.service');
 
+const AIRPORT_CITIES = {
+  AMD: 'Ahmedabad',
+  DEL: 'Delhi',
+  BOM: 'Mumbai',
+  BLR: 'Bengaluru',
+  GOA: 'Goa (Dabolim/Mopa)',
+  GOI: 'Goa (Dabolim)',
+  GOX: 'Goa (Mopa)',
+  HYD: 'Hyderabad',
+  CCU: 'Kolkata',
+  MAA: 'Chennai',
+  PNQ: 'Pune',
+  JAI: 'Jaipur',
+  COK: 'Kochi',
+  LKO: 'Lucknow',
+  SXR: 'Srinagar',
+  DXB: 'Dubai',
+  SIN: 'Singapore',
+  LHR: 'London'
+};
+
+function resolveCityName(code) {
+  return AIRPORT_CITIES[code?.toUpperCase()] || code;
+}
+
 class TripjackSupplierAdapter extends ISupplierAdapter {
   constructor() {
     super('TRIPJACK', 'TripJack Wholesaler Network');
@@ -35,11 +60,11 @@ class TripjackSupplierAdapter extends ISupplierAdapter {
         flightNumber: raw.flightNo,
         origin: {
           code: raw.src,
-          city: raw.src === 'AMD' ? 'Ahmedabad' : raw.src
+          city: resolveCityName(raw.src)
         },
         destination: {
           code: raw.dst,
-          city: raw.dst === 'DEL' ? 'Delhi' : raw.dst
+          city: resolveCityName(raw.dst)
         },
         departureTime: raw.depTime,
         arrivalTime: raw.arrTime,

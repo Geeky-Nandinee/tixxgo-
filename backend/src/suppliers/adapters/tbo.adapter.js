@@ -2,6 +2,31 @@ const ISupplierAdapter = require('../supplier.interface');
 const tboMock = require('../mocks/tbo.mock');
 const PricingEngine = require('../../services/pricing.service');
 
+const AIRPORT_CITIES = {
+  AMD: 'Ahmedabad',
+  DEL: 'Delhi',
+  BOM: 'Mumbai',
+  BLR: 'Bengaluru',
+  GOA: 'Goa (Dabolim/Mopa)',
+  GOI: 'Goa (Dabolim)',
+  GOX: 'Goa (Mopa)',
+  HYD: 'Hyderabad',
+  CCU: 'Kolkata',
+  MAA: 'Chennai',
+  PNQ: 'Pune',
+  JAI: 'Jaipur',
+  COK: 'Kochi',
+  LKO: 'Lucknow',
+  SXR: 'Srinagar',
+  DXB: 'Dubai',
+  SIN: 'Singapore',
+  LHR: 'London'
+};
+
+function resolveCityName(code) {
+  return AIRPORT_CITIES[code?.toUpperCase()] || code;
+}
+
 class TboSupplierAdapter extends ISupplierAdapter {
   constructor() {
     super('TBO', 'Travel Boutique Online');
@@ -27,6 +52,8 @@ class TboSupplierAdapter extends ISupplierAdapter {
         adults: searchParams.adults || 1
       });
 
+
+
       return {
         id: `TXG-FL-TBO-${raw.supplierResultId}`,
         supplierCode: this.supplierCode,
@@ -38,11 +65,11 @@ class TboSupplierAdapter extends ISupplierAdapter {
         flightNumber: raw.flightNumber,
         origin: {
           code: raw.origin,
-          city: raw.origin === 'AMD' ? 'Ahmedabad' : raw.origin
+          city: resolveCityName(raw.origin)
         },
         destination: {
           code: raw.destination,
-          city: raw.destination === 'DEL' ? 'Delhi' : raw.destination
+          city: resolveCityName(raw.destination)
         },
         departureTime: raw.departure,
         arrivalTime: raw.arrival,
