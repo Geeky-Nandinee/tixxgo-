@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TIXXGO - Travel Platform & API Integrations</title>
+  <meta name="description" content="Tixxgo Enterprise Travel Inventory Platform with Multi-Supplier Gateway, Dynamic Pricing Engine, and Resilient Booking Lifecycle.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="header">
+    <div class="logo-container" onclick="app.resetToSearch()">
+      <div class="logo-icon">✈</div>
+      <div>
+        <span class="brand-name">TIXXGO</span>
+        <span class="brand-badge">Travel Platform</span>
+      </div>
+    </div>
+    <div class="nav-links">
+      <button class="nav-pill active" id="btnNavSearch" onclick="app.showTab('search')">
+        <span>🔍</span> Flight Search
+      </button>
+      <button class="nav-pill" id="btnNavBookings" onclick="app.showTab('bookings')">
+        <span>📑</span> My Bookings (<span id="bookingCountBadge">0</span>)
+      </button>
+      <button class="nav-pill" id="btnNavArchitecture" onclick="app.showTab('architecture')">
+        <span>🏛️</span> Supplier Gateway
+      </button>
+    </div>
+  </header>
+
+  <!-- Step Progression Bar -->
+  <div class="step-container" id="stepContainer">
+    <div class="steps-bar">
+      <div class="step-item active" id="stepIndicator1" onclick="app.goToStep(1)">
+        <div class="step-circle">1</div>
+        <div class="step-label">Search</div>
+      </div>
+      <div class="step-item" id="stepIndicator2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Revalidate</div>
+      </div>
+      <div class="step-item" id="stepIndicator3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Travellers</div>
+      </div>
+      <div class="step-item" id="stepIndicator4">
+        <div class="step-circle">4</div>
+        <div class="step-label">Payment</div>
+      </div>
+      <div class="step-item" id="stepIndicator5">
+        <div class="step-circle">5</div>
+        <div class="step-label">Confirmed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+
+    <!-- TAB 1: FLIGHT SEARCH & JOURNEY -->
+    <div id="tabSearch" class="tab-pane active">
+
+      <!-- Step 1: Search Form -->
+      <section class="glass-card" id="searchSection">
+        <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
+          <span>✈️</span> Flight Search & Supplier Normalisation
+        </h2>
+
+        <form id="searchForm" onsubmit="event.preventDefault(); app.handleSearch();">
+          <div class="search-grid">
+            <div class="form-group">
+              <label class="form-label">Origin (Airport Code)</label>
+              <input type="text" id="inputOrigin" class="form-control" value="AMD" required maxlength="3" style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Destination (Airport Code)</label>
+              <input type="text" id="inputDestination" class="form-control" value="DEL" required maxlength="3" style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Departure Date</label>
+              <input type="date" id="inputDepartureDate" class="form-control" value="2026-10-15" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Adults</label>
+              <select id="inputAdults" class="form-control">
+                <option value="1" selected>1 Adult</option>
+                <option value="2">2 Adults</option>
+                <option value="3">3 Adults</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cabin Class</label>
+              <select id="inputCabin" class="form-control">
+                <option value="ECONOMY" selected>Economy</option>
+                <option value="BUSINESS">Business</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary" id="btnSearchSubmit">
+              <span>Find Flights</span>
+            </button>
+          </div>
+
+          <!-- Assessment Simulation Controls Bar -->
+          <div class="simulation-banner">
+            <span style="font-weight: 700; font-size: 0.82rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
+              ⚙️ Assessment Simulation Lab:
+            </span>
+            <label class="sim-toggle">
+              <input type="checkbox" id="simMultiSupplier" checked onchange="app.toggleMultiSupplier(this.checked)">
+              <span>Multi-Supplier Mode (Task 8 & 9)</span>
+            </label>
+            <label class="sim-toggle">
+              <input type="checkbox" id="simPriceChange" checked onchange="app.updateSimulationFlag('priceChangeActive', this.checked)">
+              <span>Price Change Simulation (Task 3)</span>
+            </label>
+            <label class="sim-toggle">
+              <input type="checkbox" id="simTimeout" onchange="app.updateSimulationFlag('simulateTimeoutNext', this.checked)">
+              <span>Timeout Simulation (Task 6)</span>
+            </label>
+            <label class="sim-toggle">
+              <input type="checkbox" id="simFailure" onchange="app.updateSimulationFlag('simulateFailureNext', this.checked)">
+              <span>Supplier Reject/Refund (Task 5)</span>
+            </label>
+          </div>
+        </form>
+      </section>
+
+      <!-- Search Results Feed -->
+      <section id="resultsSection" style="display: none; margin-top: 2rem;">
+        <div class="results-header">
+          <div class="results-count" id="resultsCount">0 Flights Found</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);" id="suppliersQueriedText">
+            Suppliers: TBO, TripJack
+          </div>
+        </div>
+
+        <div id="flightListContainer">
+          <!-- Flight Cards injected dynamically -->
+        </div>
+      </section>
+
+      <!-- Step 3: Traveller Details Section (shown when flight selected & revalidated) -->
+      <section id="travellerSection" class="glass-card" style="display: none; margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 style="font-size: 1.3rem; font-weight: 800;">
+            <span>👤</span> Task 4: Traveller & Contact Information
+          </h2>
+          <button class="btn-secondary" onclick="app.goToStep(1)">Back to Search</button>
+        </div>
+
+        <!-- Selected Flight Summary Banner -->
+        <div id="travellerFlightSummary" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+        </div>
+
+        <form id="travellerForm" onsubmit="event.preventDefault(); app.handleTravellerSubmit();">
+          <div style="display: grid; grid-template-columns: 120px 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <select id="travellerTitle" class="form-control">
+                <option value="MR">Mr.</option>
+                <option value="MS">Ms.</option>
+                <option value="MRS">Mrs.</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <input type="text" id="travellerFirstName" class="form-control" value="Rahul" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" id="travellerLastName" class="form-control" value="Sharma" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" id="travellerEmail" class="form-control" value="rahul.sharma@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" id="travellerPhone" class="form-control" value="+91 98765 43210" required>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn-primary">
+              <span>Continue to Payment →</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Step 4: Mock Payment Section -->
+      <section id="paymentSection" class="glass-card" style="display: none; margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 style="font-size: 1.3rem; font-weight: 800;">
+            <span>💳</span> Task 5: Mock Payment Gateway & Booking Execution
+          </h2>
+          <button class="btn-secondary" onclick="app.goToStep(3)">Edit Travellers</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem;">
+          <!-- Payment Options -->
+          <div>
+            <h4 style="font-size: 0.95rem; margin-bottom: 1rem; color: var(--text-secondary);">Select Payment Method</h4>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem;">
+              <label style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; border: 1px solid var(--accent-cyan); cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="CARD" checked accent-color="var(--accent-cyan)">
+                <div>
+                  <div style="font-weight: 700;">Credit / Debit Card</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Visa, MasterCard, RuPay (Test mode enabled)</div>
+                </div>
+              </label>
+              <label style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer;">
+                <input type="radio" name="paymentMethod" value="UPI">
+                <div>
+                  <div style="font-weight: 700;">UPI / QR Code</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Google Pay, PhonePe, Paytm</div>
+                </div>
+              </label>
+            </div>
+
+            <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 1rem; font-size: 0.85rem; color: #c7d2fe;">
+              <strong>State Machine Pipeline:</strong>
+              <div style="margin-top: 6px; font-family: monospace;">
+                PAYMENT_PENDING → PAYMENT_SUCCESS → SUPPLIER_BOOKING → BOOKING_CONFIRMED
+              </div>
+            </div>
+          </div>
+
+          <!-- Price Summary Card -->
+          <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 800; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+              Pricing Breakdown (Task 2)
+            </h4>
+            <div id="paymentPricingBreakdown">
+              <!-- Injected dynamically -->
+            </div>
+            <button class="btn-primary" id="btnExecutePayment" onclick="app.executePaymentAndBooking()" style="width: 100%; margin-top: 1.5rem;">
+              <span>Authorize & Book Now</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 5: Booking Confirmation & Management -->
+      <section id="confirmationSection" class="glass-card" style="display: none; margin-top: 2rem;">
+        <!-- Injected dynamically -->
+      </section>
+
+    </div>
+
+    <!-- TAB 2: BOOKING HISTORY & DASHBOARD -->
+    <div id="tabBookings" class="tab-pane" style="display: none;">
+      <section class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 style="font-size: 1.3rem; font-weight: 800;">
+            <span>📑</span> Booking History & State Tracker
+          </h2>
+          <button class="btn-primary" onclick="app.loadBookings()">Refresh List</button>
+        </div>
+        <div id="bookingHistoryTableContainer">
+          <p style="color: var(--text-muted);">Loading bookings...</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- TAB 3: ARCHITECTURE & MULTI-SUPPLIER STRATEGY -->
+    <div id="tabArchitecture" class="tab-pane" style="display: none;">
+      <section class="glass-card">
+        <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem;">
+          <span>🏛️</span> Task 8 & 9: Supplier Gateway Architecture & Deduplication Engine
+        </h2>
+        
+        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 0.75rem;">1. Architectural Decoupling Diagram</h3>
+          <pre style="background: rgba(0,0,0,0.4); padding: 1rem; border-radius: 6px; font-size: 0.85rem; color: #a5b4fc; overflow-x: auto;">
+                                TIXXGO FRONTEND (Angular)
+                                           │
+                                           ▼ (Normalized JSON REST APIs)
+                           EXPRESS CONTROLLERS & PRICING ENGINE
+                                           │
+                                           ▼
+                             SUPPLIER GATEWAY (Hub & Routing)
+                           ┌───────────────┴───────────────┐
+                           ▼                               ▼
+                 Supplier Adapter A              Supplier Adapter B
+                 (TboSupplierAdapter)         (TripjackSupplierAdapter)
+                           │                               │
+                           ▼                               ▼
+                     TBO Travel API               TripJack Wholesaler
+          </pre>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem;">
+            <strong>Zero Upstream Refactoring:</strong> Adding Supplier #2 (TripJack) or Supplier #3 (Amadeus) only requires implementing the <code>ISupplierAdapter</code> interface. The pricing engine, database schemas, booking state machines, and frontend consumers remain completely untouched.
+          </p>
+        </div>
+
+        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+          <h3 style="font-size: 1.1rem; color: var(--accent-amber); margin-bottom: 0.75rem;">2. Task 9 Deduplication & Scoring Formula</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            When the same flight (e.g. Air India AI101 AMD → DEL) is returned by both TBO (INR 8,450) and TripJack (INR 8,150), Tixxgo computes a multi-factor score:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">
+              <strong style="color: var(--accent-cyan);">Price Factor (35%)</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Favors lower customer total (TripJack 8,150 wins +300 INR benefit).</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">
+              <strong style="color: var(--accent-indigo);">Margin Factor (20%)</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Negotiated commission (TripJack 4.5% vs TBO 3.0%).</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">
+              <strong style="color: var(--accent-emerald);">Reliability SLA (20%)</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Historical PNR confirmation rate (TBO 98.5% vs TripJack 96.2%).</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 6px;">
+              <strong style="color: var(--accent-purple);">Baggage Allowance (15%)</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Check-in baggage (TripJack provides 20 KG vs TBO 15 KG).</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- FARE REVALIDATION MODAL (Task 3) -->
+  <div id="modalRevalidation" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Fare Revalidation Notice</h3>
+        <span style="font-size: 0.8rem; background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); padding: 2px 8px; border-radius: 12px; font-weight: 700;">
+          PRICE_CHANGED
+        </span>
+      </div>
+
+      <div class="price-alert-box">
+        <div style="font-size: 1.5rem;">⚠️</div>
+        <div>
+          <div style="font-weight: 700; color: #fde68a;">Supplier Price Adjustment Detected</div>
+          <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+            The airline has updated seat class availability between your search and booking request.
+          </div>
+        </div>
+      </div>
+
+      <div class="price-compare-grid">
+        <div class="compare-col">
+          <h5>Initial Search Total</h5>
+          <div class="price-val strike" id="modalOriginalPrice">INR 6,249</div>
+        </div>
+        <div class="compare-col">
+          <h5>Revalidated Total</h5>
+          <div class="price-val updated" id="modalNewPrice">INR 6,449</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;" id="modalDifferenceNote">
+        Price difference: +INR 200. This updated fare will be held for 15 minutes.
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="app.closeRevalidationModal(false)">
+          Decline & Back to Search
+        </button>
+        <button class="btn-primary" onclick="app.acceptRevalidatedFare()">
+          Accept & Continue →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANCELLATION & REFUND QUOTE MODAL (Task 7) -->
+  <div id="modalCancellation" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Booking Cancellation & Refund Quote</h3>
+        <button onclick="app.closeCancellationModal()" style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
+      </div>
+
+      <div id="cancellationQuoteBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

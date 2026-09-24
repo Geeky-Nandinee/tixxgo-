@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: tixxgo-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tixxgo_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      timeout: 5s
+      retries: 10
+
+  # Optional Redis Cache Layer
+  redis:
+    image: redis:7-alpine
+    container_name: tixxgo-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # TIXXGO Unified Application (Backend & Frontend)
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: tixxgo-app
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: tixxgo_db
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  mysql_data:

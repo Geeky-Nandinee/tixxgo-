@@ -1,0 +1,30 @@
+{
+  "name": "tixxgo-backend",
+  "version": "1.0.0",
+  "description": "TIXXGO Travel Platform Backend & API Integrations",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "tixxgo",
+    "travel",
+    "api-integration",
+    "express",
+    "mysql"
+  ],
+  "author": "Full Stack Developer Assessment",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  }
+}
