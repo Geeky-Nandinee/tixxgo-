@@ -843,9 +843,11 @@ class TixxgoApp {
         </button>
       </div>
 
-      <div id="liveAuditLogBox" style="display: none; background: rgba(0,0,0,0.4); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
-        <h4 style="font-size: 0.9rem; color: var(--accent-cyan); margin-bottom: 0.5rem;">State Transition History (Audit Trail):</h4>
-        <div id="auditLogContent"></div>
+      <div id="liveAuditLogBox" class="audit-box" style="display: none;">
+        <h4 class="audit-box-title">
+          <span>📜</span> State Transition History (Audit Trail)
+        </h4>
+        <div id="auditLogContent" class="audit-list"></div>
       </div>
     `;
   }
@@ -968,14 +970,14 @@ class TixxgoApp {
           .map(
             l => `
             <div class="audit-item">
-              <div style="display:flex; justify-content:space-between;">
-                <strong>${l.action}</strong>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="color: var(--text-primary); font-size: 0.9rem;">${l.action}</strong>
                 <span class="audit-time">${new Date(l.createdAt).toLocaleTimeString()}</span>
               </div>
-              <div style="color: var(--text-secondary); margin-top:2px;">
-                State: ${l.previousStatus || 'NONE'} → <strong>${l.newStatus}</strong>
+              <div style="color: var(--text-secondary); margin-top: 3px; font-size: 0.82rem;">
+                State: ${l.previousStatus || 'NONE'} → <strong style="color: var(--accent-cyan);">${l.newStatus}</strong>
               </div>
-              ${l.reason ? `<div style="color: var(--text-muted); font-size:0.75rem;">Reason: ${l.reason}</div>` : ''}
+              ${l.reason ? `<div style="color: var(--text-muted); font-size: 0.78rem; margin-top: 2px;">Reason: ${l.reason}</div>` : ''}
             </div>
           `
           )
