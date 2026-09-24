@@ -15,7 +15,18 @@ class DatabaseManager {
 
   async initialize() {
     try {
-      // Attempt MySQL connection
+      // 1. First connect to MySQL server to auto-create database if not exists
+      const initConn = await mysql.createConnection({
+        host: env.DB_HOST,
+        port: env.DB_PORT,
+        user: env.DB_USER,
+        password: env.DB_PASSWORD,
+        connectTimeout: 3000
+      });
+      await initConn.query(`CREATE DATABASE IF NOT EXISTS \`${env.DB_NAME}\`;`);
+      await initConn.end();
+
+      // 2. Initialize connection pool targeting the database
       this.pool = mysql.createPool({
         host: env.DB_HOST,
         port: env.DB_PORT,
@@ -25,11 +36,11 @@ class DatabaseManager {
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
-        connectTimeout: 2000
+        connectTimeout: 3000
       });
 
       const connection = await this.pool.getConnection();
-      console.log(`[Database] Connected to MySQL database "${env.DB_NAME}" at ${env.DB_HOST}:${env.DB_PORT}`);
+      console.log(`[Database] Successfully connected to MySQL database "${env.DB_NAME}" at ${env.DB_HOST}:${env.DB_PORT}`);
       connection.release();
       this.isMySql = true;
       await this.runMigrations();
