@@ -634,14 +634,14 @@ class TixxgoApp {
     summary.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <strong style="color: #fff; font-size: 1.1rem;">${f.airline.name} (${f.flightNumber})</strong>
+          <strong style="color: var(--text-primary); font-size: 1.1rem;">${f.airline.name} (${f.flightNumber})</strong>
           <div style="color: var(--text-muted); font-size: 0.85rem;">
             ${f.origin.code} (${f.origin.city}) → ${f.destination.code} (${f.destination.city}) • Departure: ${new Date(f.departureTime).toLocaleDateString()} ${new Date(f.departureTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
           </div>
         </div>
         <div style="text-align: right;">
           <div style="font-size: 1.25rem; font-weight: 800; color: var(--accent-cyan);">₹${f.pricing.customerPrice.totalAmount.toLocaleString()}</div>
-          <div style="font-size: 0.75rem; color: #10b981;">✓ Fare Locked</div>
+          <div style="font-size: 0.75rem; color: var(--accent-emerald);">✓ Fare Locked</div>
         </div>
       </div>
     `;
@@ -666,27 +666,36 @@ class TixxgoApp {
     const cp = this.selectedFlight.pricing.customerPrice;
     const container = document.getElementById('paymentPricingBreakdown');
     container.innerHTML = `
-      <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
-        <span style="color: var(--text-secondary);">Supplier Base Fare</span>
+      <div class="payment-row">
+        <span>Supplier Base Fare</span>
         <span>₹${cp.baseFare.toLocaleString()}</span>
       </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
-        <span style="color: var(--text-secondary);">Airline Taxes & Surcharges</span>
+      <div class="payment-row">
+        <span>Airline Taxes & Surcharges</span>
         <span>₹${cp.taxes.toLocaleString()}</span>
       </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
-        <span style="color: var(--text-secondary);">Tixxgo Platform Service Fee</span>
+      <div class="payment-row">
+        <span>Tixxgo Platform Service Fee</span>
         <span>₹${cp.serviceFee.toLocaleString()}</span>
       </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.85rem; color: #34d399;">
+      <div class="payment-row discount">
         <span>Tixxgo Promotional Discount</span>
         <span>- ₹${cp.discount.toLocaleString()}</span>
       </div>
-      <div style="display: flex; justify-content: space-between; padding-top: 0.75rem; border-top: 1px dashed var(--border-color); font-weight: 800; font-size: 1.15rem;">
+      <div class="payment-row total">
         <span>Total Payable</span>
-        <span style="color: var(--accent-cyan);">₹${cp.totalAmount.toLocaleString()}</span>
+        <span class="total-amount">₹${cp.totalAmount.toLocaleString()}</span>
       </div>
     `;
+  }
+
+  handlePaymentMethodChange(radio) {
+    document.querySelectorAll('.payment-option-label').forEach(lbl => {
+      lbl.classList.remove('selected');
+    });
+    if (radio && radio.closest('.payment-option-label')) {
+      radio.closest('.payment-option-label').classList.add('selected');
+    }
   }
 
   /**
@@ -791,25 +800,25 @@ class TixxgoApp {
         <button class="btn-secondary" onclick="app.resetToSearch()">Book Another Flight</button>
       </div>
 
-      <!-- Booking Identifiers Card (Task 4) -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(255,255,255,0.02); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+      <!-- Booking Identifiers Card -->
+      <div class="booking-identifiers-grid">
         <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Tixxgo Booking Reference</div>
-          <div style="font-size: 1.3rem; font-weight: 800; color: var(--accent-cyan); font-family: monospace;">${ref}</div>
+          <div class="identifier-label">Tixxgo Booking Reference</div>
+          <div class="identifier-value mono" style="color: var(--accent-cyan);">${ref}</div>
         </div>
         <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Airline PNR</div>
-          <div style="font-size: 1.3rem; font-weight: 800; color: #fff; font-family: monospace;">${pnr}</div>
+          <div class="identifier-label">Airline PNR</div>
+          <div class="identifier-value mono">${pnr}</div>
         </div>
         <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Payment Status</div>
-          <div style="font-size: 1.1rem; font-weight: 700; color: ${isFailedRefunded ? '#818cf8' : '#34d399'};">
+          <div class="identifier-label">Payment Status</div>
+          <div class="identifier-value" style="color: ${isFailedRefunded ? 'var(--accent-indigo)' : 'var(--accent-emerald)'};">
             ${result.paymentStatus || (result.booking && result.booking.paymentStatus)}
           </div>
         </div>
         <div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Supplier Assigned</div>
-          <div style="font-size: 1.1rem; font-weight: 700; color: #fff;">${flight.supplierCode} (${flight.supplierResultId})</div>
+          <div class="identifier-label">Supplier Assigned</div>
+          <div class="identifier-value" style="font-size: 1.05rem;">${flight.supplierCode} (${flight.supplierResultId})</div>
         </div>
       </div>
 
@@ -818,14 +827,14 @@ class TixxgoApp {
         ${
           isUnknown
             ? `<button class="btn-primary" onclick="app.reconcileUnknownBooking('${ref}')">
-                <span>🔄 Safe Reconciliation Check (Task 6)</span>
+                <span>🔄 Safe Reconciliation Check</span>
               </button>`
             : ''
         }
         ${
           isSuccess
-            ? `<button class="btn-secondary" style="border-color: rgba(244,63,94,0.4); color: #fda4af;" onclick="app.requestCancellationQuote('${ref}')">
-                <span>Request Booking Cancellation (Task 7)</span>
+            ? `<button class="btn-secondary btn-cancel-booking" onclick="app.requestCancellationQuote('${ref}')">
+                <span>Request Booking Cancellation</span>
               </button>`
             : ''
         }
@@ -877,7 +886,7 @@ class TixxgoApp {
       const q = data.data;
       const body = document.getElementById('cancellationQuoteBody');
       body.innerHTML = `
-        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+        <div class="summary-banner-box" style="margin-bottom: 1rem;">
           <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
             Booking: <strong>${q.bookingReference}</strong> (PNR: ${q.pnr})
           </div>
@@ -994,32 +1003,32 @@ class TixxgoApp {
       }
 
       container.innerHTML = `
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+        <table class="data-table">
           <thead>
-            <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
-              <th style="padding: 10px;">Reference</th>
-              <th style="padding: 10px;">Flight</th>
-              <th style="padding: 10px;">Customer Total</th>
-              <th style="padding: 10px;">Supplier</th>
-              <th style="padding: 10px;">Status</th>
-              <th style="padding: 10px;">Actions</th>
+            <tr>
+              <th>Reference</th>
+              <th>Flight</th>
+              <th>Customer Total</th>
+              <th>Supplier</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             ${this.allBookings
               .map(
                 b => `
-              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 12px; font-weight:700; font-family:monospace; color:var(--accent-cyan);">${b.bookingReference}</td>
-                <td style="padding: 12px;">${b.flightDetails?.flightNumber || 'AI482'} (${b.flightDetails?.origin?.code || 'AMD'} → ${b.flightDetails?.destination?.code || 'DEL'})</td>
-                <td style="padding: 12px; font-weight:700;">₹${b.customerPrice?.totalAmount?.toLocaleString()}</td>
-                <td style="padding: 12px;">${b.supplierCode}</td>
-                <td style="padding: 12px;">
+              <tr>
+                <td style="font-weight:700; font-family:monospace; color:var(--accent-cyan);">${b.bookingReference}</td>
+                <td>${b.flightDetails?.flightNumber || 'AI482'} (${b.flightDetails?.origin?.code || 'AMD'} → ${b.flightDetails?.destination?.code || 'DEL'})</td>
+                <td style="font-weight:700;">₹${b.customerPrice?.totalAmount?.toLocaleString()}</td>
+                <td>${b.supplierCode}</td>
+                <td>
                   <span class="status-badge ${b.bookingStatus === 'BOOKING_CONFIRMED' ? 'CONFIRMED' : b.bookingStatus === 'SUPPLIER_UNKNOWN' ? 'UNKNOWN' : b.bookingStatus === 'CANCELLED' ? 'REFUNDED' : 'FAILED'}">
                     ${b.bookingStatus}
                   </span>
                 </td>
-                <td style="padding: 12px;">
+                <td>
                   <button class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="app.viewBookingDetails('${b.bookingReference}')">
                     Inspect Details
                   </button>
