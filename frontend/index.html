@@ -77,13 +77,31 @@
 
         <form id="searchForm" onsubmit="event.preventDefault(); app.handleSearch();">
           <div class="search-grid">
-            <div class="form-group">
-              <label class="form-label">Origin (Airport Code)</label>
-              <input type="text" id="inputOrigin" class="form-control" value="AMD" required maxlength="3" style="text-transform: uppercase;">
+            <!-- Origin Searchable Dropdown -->
+            <div class="form-group custom-select-wrapper" id="originWrapper">
+              <label class="form-label">Origin (City / Airport)</label>
+              <div class="input-with-icon">
+                <span class="input-icon">🛫</span>
+                <input type="text" id="inputOriginText" class="form-control" autocomplete="off" value="Ahmedabad (AMD)" placeholder="Search city or code..." required>
+                <input type="hidden" id="inputOrigin" value="AMD">
+              </div>
+              <div class="airport-dropdown" id="dropdownOrigin"></div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Destination (Airport Code)</label>
-              <input type="text" id="inputDestination" class="form-control" value="DEL" required maxlength="3" style="text-transform: uppercase;">
+
+            <!-- Swap Button -->
+            <button type="button" class="btn-swap-airports" onclick="app.swapAirports()" title="Swap Origin and Destination">
+              ⇄
+            </button>
+
+            <!-- Destination Searchable Dropdown -->
+            <div class="form-group custom-select-wrapper" id="destWrapper">
+              <label class="form-label">Destination (City / Airport)</label>
+              <div class="input-with-icon">
+                <span class="input-icon">🛬</span>
+                <input type="text" id="inputDestText" class="form-control" autocomplete="off" value="Delhi (DEL)" placeholder="Search city or code..." required>
+                <input type="hidden" id="inputDestination" value="DEL">
+              </div>
+              <div class="airport-dropdown" id="dropdownDestination"></div>
             </div>
             <div class="form-group">
               <label class="form-label">Departure Date</label>

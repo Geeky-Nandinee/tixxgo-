@@ -3,6 +3,37 @@
  * Implements Task 10: Complete Customer Journey & Real-time Integration
  */
 
+const POPULAR_AIRPORTS = [
+  { code: 'AMD', city: 'Ahmedabad', name: 'Sardar Vallabhbhai Patel Intl', country: 'India' },
+  { code: 'DEL', city: 'Delhi', name: 'Indira Gandhi Intl', country: 'India' },
+  { code: 'BOM', city: 'Mumbai', name: 'Chhatrapati Shivaji Maharaj Intl', country: 'India' },
+  { code: 'BLR', city: 'Bengaluru', name: 'Kempegowda Intl', country: 'India' },
+  { code: 'GOA', city: 'Goa', name: 'Dabolim / Manohar Intl', country: 'India' },
+  { code: 'HYD', city: 'Hyderabad', name: 'Rajiv Gandhi Intl', country: 'India' },
+  { code: 'CCU', city: 'Kolkata', name: 'Netaji Subhash Chandra Bose Intl', country: 'India' },
+  { code: 'MAA', city: 'Chennai', name: 'Chennai Intl', country: 'India' },
+  { code: 'PNQ', city: 'Pune', name: 'Pune Airport', country: 'India' },
+  { code: 'JAI', city: 'Jaipur', name: 'Jaipur Intl', country: 'India' },
+  { code: 'COK', city: 'Kochi', name: 'Cochin Intl', country: 'India' },
+  { code: 'LKO', city: 'Lucknow', name: 'Chaudhary Charan Singh Intl', country: 'India' },
+  { code: 'SXR', city: 'Srinagar', name: 'Sheikh ul-Alam Intl', country: 'India' },
+  { code: 'IXC', city: 'Chandigarh', name: 'Shaheed Bhagat Singh Intl', country: 'India' },
+  { code: 'VNS', city: 'Varanasi', name: 'Lal Bahadur Shastri Intl', country: 'India' },
+  { code: 'ATQ', city: 'Amritsar', name: 'Sri Guru Ram Dass Jee Intl', country: 'India' },
+  { code: 'GAU', city: 'Guwahati', name: 'Lokpriya Gopinath Bordoloi Intl', country: 'India' },
+  { code: 'PAT', city: 'Patna', name: 'Jay Prakash Narayan Airport', country: 'India' },
+  { code: 'IDR', city: 'Indore', name: 'Devi Ahilya Bai Holkar Airport', country: 'India' },
+  { code: 'STV', city: 'Surat', name: 'Surat Intl Airport', country: 'India' },
+  { code: 'BDQ', city: 'Vadodara', name: 'Vadodara Airport', country: 'India' },
+  { code: 'UDR', city: 'Udaipur', name: 'Maharana Pratap Airport', country: 'India' },
+  { code: 'DED', city: 'Dehradun', name: 'Jolly Grant Airport', country: 'India' },
+  { code: 'DXB', city: 'Dubai', name: 'Dubai Intl Airport', country: 'UAE' },
+  { code: 'SIN', city: 'Singapore', name: 'Changi Airport', country: 'Singapore' },
+  { code: 'BKK', city: 'Bangkok', name: 'Suvarnabhumi Airport', country: 'Thailand' },
+  { code: 'LHR', city: 'London', name: 'Heathrow Airport', country: 'United Kingdom' },
+  { code: 'DOH', city: 'Doha', name: 'Hamad Intl Airport', country: 'Qatar' }
+];
+
 class TixxgoApp {
   constructor() {
     this.apiBase = '/api';
@@ -51,6 +82,7 @@ class TixxgoApp {
     console.log('[TixxgoApp] Initializing travel platform client...');
     this.applyTheme(this.theme);
     this.bindEvents();
+    this.initAirportDropdowns();
     await this.fetchSimulationFlags();
     await this.loadBookings();
 
@@ -171,6 +203,179 @@ class TixxgoApp {
   }
 
   /**
+   * Searchable Airport Dropdowns & Autocomplete
+   */
+  initAirportDropdowns() {
+    this.setupAirportDropdown({
+      textInputId: 'inputOriginText',
+      hiddenInputId: 'inputOrigin',
+      dropdownId: 'dropdownOrigin'
+    });
+
+    this.setupAirportDropdown({
+      textInputId: 'inputDestText',
+      hiddenInputId: 'inputDestination',
+      dropdownId: 'dropdownDestination'
+    });
+
+    // Close any open dropdown on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.custom-select-wrapper')) {
+        document.querySelectorAll('.airport-dropdown').forEach(d => d.classList.remove('show'));
+      }
+    });
+  }
+
+  setupAirportDropdown({ textInputId, hiddenInputId, dropdownId }) {
+    const textInput = document.getElementById(textInputId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const dropdown = document.getElementById(dropdownId);
+    if (!textInput || !dropdown) return;
+
+    let activeIndex = -1;
+
+    const renderList = (filterText = '') => {
+      const q = filterText.trim().toLowerCase();
+      const filtered = POPULAR_AIRPORTS.filter(a => {
+        if (!q) return true;
+        return a.code.toLowerCase().includes(q) ||
+               a.city.toLowerCase().includes(q) ||
+               a.name.toLowerCase().includes(q) ||
+               a.country.toLowerCase().includes(q);
+      });
+
+      if (filtered.length === 0) {
+        dropdown.innerHTML = `<div class="airport-empty-notice">No airports matching "${filterText}"</div>`;
+        return;
+      }
+
+      dropdown.innerHTML = filtered.map((a, idx) => `
+        <div class="airport-item ${idx === activeIndex ? 'active' : ''}" data-code="${a.code}" data-label="${a.city} (${a.code})">
+          <div class="airport-info-left">
+            <span class="airport-city">${a.city}</span>
+            <span class="airport-name">${a.name} · ${a.country}</span>
+          </div>
+          <span class="airport-code-badge">${a.code}</span>
+        </div>
+      `).join('');
+
+      dropdown.querySelectorAll('.airport-item').forEach(item => {
+        item.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          const code = item.getAttribute('data-code');
+          const label = item.getAttribute('data-label');
+          textInput.value = label;
+          if (hiddenInput) hiddenInput.value = code;
+          dropdown.classList.remove('show');
+          this.handleSearch();
+        });
+      });
+    };
+
+    textInput.addEventListener('focus', () => {
+      document.querySelectorAll('.airport-dropdown').forEach(d => {
+        if (d !== dropdown) d.classList.remove('show');
+      });
+      activeIndex = -1;
+      renderList('');
+      dropdown.classList.add('show');
+      textInput.select();
+    });
+
+    textInput.addEventListener('input', () => {
+      dropdown.classList.add('show');
+      activeIndex = -1;
+      renderList(textInput.value);
+    });
+
+    textInput.addEventListener('keydown', (e) => {
+      const items = dropdown.querySelectorAll('.airport-item');
+      if (!items.length) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = (activeIndex + 1) % items.length;
+        items.forEach((it, i) => it.classList.toggle('active', i === activeIndex));
+        items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = (activeIndex - 1 + items.length) % items.length;
+        items.forEach((it, i) => it.classList.toggle('active', i === activeIndex));
+        items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && items[activeIndex]) {
+          const code = items[activeIndex].getAttribute('data-code');
+          const label = items[activeIndex].getAttribute('data-label');
+          textInput.value = label;
+          if (hiddenInput) hiddenInput.value = code;
+        } else if (items.length > 0) {
+          const code = items[0].getAttribute('data-code');
+          const label = items[0].getAttribute('data-label');
+          textInput.value = label;
+          if (hiddenInput) hiddenInput.value = code;
+        }
+        dropdown.classList.remove('show');
+        this.handleSearch();
+      } else if (e.key === 'Escape') {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    textInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        dropdown.classList.remove('show');
+        const raw = textInput.value.trim();
+        if (!raw) return;
+
+        const parenMatch = raw.match(/\(([A-Za-z]{3})\)/);
+        if (parenMatch) {
+          if (hiddenInput) hiddenInput.value = parenMatch[1].toUpperCase();
+          return;
+        }
+
+        const directCodeMatch = POPULAR_AIRPORTS.find(a => a.code.toUpperCase() === raw.toUpperCase());
+        if (directCodeMatch) {
+          if (hiddenInput) hiddenInput.value = directCodeMatch.code;
+          textInput.value = `${directCodeMatch.city} (${directCodeMatch.code})`;
+          return;
+        }
+
+        const cityMatch = POPULAR_AIRPORTS.find(a => a.city.toLowerCase() === raw.toLowerCase());
+        if (cityMatch) {
+          if (hiddenInput) hiddenInput.value = cityMatch.code;
+          textInput.value = `${cityMatch.city} (${cityMatch.code})`;
+          return;
+        }
+
+        if (raw.length === 3) {
+          if (hiddenInput) hiddenInput.value = raw.toUpperCase();
+        }
+      }, 200);
+    });
+  }
+
+  swapAirports() {
+    const origTextEl = document.getElementById('inputOriginText');
+    const origCodeEl = document.getElementById('inputOrigin');
+    const destTextEl = document.getElementById('inputDestText');
+    const destCodeEl = document.getElementById('inputDestination');
+
+    if (!origTextEl || !destTextEl) return;
+
+    const tempText = origTextEl.value;
+    const tempCode = origCodeEl ? origCodeEl.value : 'AMD';
+
+    origTextEl.value = destTextEl.value;
+    if (origCodeEl && destCodeEl) origCodeEl.value = destCodeEl.value;
+
+    destTextEl.value = tempText;
+    if (destCodeEl) destCodeEl.value = tempCode;
+
+    this.handleSearch();
+  }
+
+  /**
    * Task 1: Search Flights
    */
   async handleSearch() {
@@ -180,8 +385,24 @@ class TixxgoApp {
       btn.innerHTML = '<span>Searching...</span>';
     }
 
-    const origin = document.getElementById('inputOrigin').value.trim().toUpperCase() || 'AMD';
-    const destination = document.getElementById('inputDestination').value.trim().toUpperCase() || 'DEL';
+    let origin = (document.getElementById('inputOrigin')?.value || '').trim().toUpperCase();
+    let destination = (document.getElementById('inputDestination')?.value || '').trim().toUpperCase();
+
+    // Fallbacks if hidden inputs are missing or not 3 chars
+    if (!origin || origin.length !== 3) {
+      const origText = (document.getElementById('inputOriginText')?.value || '').trim();
+      const m = origText.match(/\(([A-Z]{3})\)/i) || origText.match(/\b([A-Z]{3})\b/i);
+      origin = m ? m[1].toUpperCase() : (origText.slice(0, 3).toUpperCase() || 'AMD');
+      if (document.getElementById('inputOrigin')) document.getElementById('inputOrigin').value = origin;
+    }
+
+    if (!destination || destination.length !== 3) {
+      const destText = (document.getElementById('inputDestText')?.value || '').trim();
+      const m = destText.match(/\(([A-Z]{3})\)/i) || destText.match(/\b([A-Z]{3})\b/i);
+      destination = m ? m[1].toUpperCase() : (destText.slice(0, 3).toUpperCase() || 'DEL');
+      if (document.getElementById('inputDestination')) document.getElementById('inputDestination').value = destination;
+    }
+
     const departureDate = document.getElementById('inputDepartureDate').value || '2026-10-15';
     const adults = parseInt(document.getElementById('inputAdults').value, 10) || 1;
     const cabinClass = document.getElementById('inputCabin').value || 'ECONOMY';
