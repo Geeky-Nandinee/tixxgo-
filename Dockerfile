@@ -1,4 +1,4 @@
-# TIXXGO Production Dockerfile
+# TIXXGO Production Dockerfile (Root Context)
 FROM node:22-alpine AS builder
 
 WORKDIR /app

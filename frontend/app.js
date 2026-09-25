@@ -151,16 +151,39 @@ class TixxgoApp {
     if (tabName === 'bookings') {
       this.loadBookings();
     }
+
+    if (tabName === 'architecture') {
+      this.loadSupplierConsole();
+      this.inspectRawNormalization();
+      this.recalculateScoring();
+    }
   }
 
   goToStep(stepNumber) {
     this.currentStep = stepNumber;
+
+    // Update dynamic progress bar fill
+    const progressFill = document.getElementById('stepProgressFill');
+    if (progressFill) {
+      const stepFractions = { 1: 0, 2: 0.25, 3: 0.50, 4: 0.75, 5: 1 };
+      const fraction = stepFractions[stepNumber] !== undefined ? stepFractions[stepNumber] : 0;
+      progressFill.style.width = fraction === 0 ? '0px' : `calc((100% - 40px) * ${fraction})`;
+    }
+
     for (let i = 1; i <= 5; i++) {
       const el = document.getElementById(`stepIndicator${i}`);
       if (!el) continue;
+      const circle = el.querySelector('.step-circle');
       el.classList.remove('active', 'completed');
-      if (i === stepNumber) el.classList.add('active');
-      else if (i < stepNumber) el.classList.add('completed');
+      if (i === stepNumber) {
+        el.classList.add('active');
+        if (circle) circle.innerHTML = `${i}`;
+      } else if (i < stepNumber) {
+        el.classList.add('completed');
+        if (circle) circle.innerHTML = `✓`;
+      } else {
+        if (circle) circle.innerHTML = `${i}`;
+      }
     }
 
     // Toggle Section Visibilities
@@ -1066,6 +1089,265 @@ class TixxgoApp {
     } catch (e) {
       alert('Could not view booking: ' + e.message);
     }
+  }
+
+  async loadSupplierConsole() {
+    const container = document.getElementById('supplierCardsContainer');
+    if (!container) return;
+
+    try {
+      const res = await fetch(`${this.apiBase}/suppliers`);
+      const data = await res.json();
+      const list = data.data || [];
+      if (!data.success || !list.length) {
+        container.innerHTML = '<p style="color: var(--text-muted);">No suppliers registered.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(s => {
+        const isHealthy = s.health?.status === 'HEALTHY' || s.status === 'ACTIVE';
+        const statusColor = isHealthy ? 'var(--accent-emerald)' : 'var(--accent-rose)';
+        const slaPercent = s.metrics?.historicalSuccessRate ? (s.metrics.historicalSuccessRate * 100).toFixed(1) : '98.0';
+        const commissionPercent = s.metrics?.commissionRate ? (s.metrics.commissionRate * 100).toFixed(1) : '3.0';
+
+        return `
+          <div class="supplier-console-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0;">${s.name}</h4>
+                  <span class="status-badge" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); font-weight: 700; font-size: 0.72rem;">${s.code}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">${s.role.replace(/_/g, ' ')}</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: ${statusColor};">
+                <span class="pulse-dot"></span>
+                <span>${s.health?.status || 'ONLINE'} (${s.health?.latencyMs || 45}ms)</span>
+              </div>
+            </div>
+
+            <table class="supplier-metrics-table">
+              <tbody>
+                <tr>
+                  <td>Historical SLA</td>
+                  <td style="color: var(--accent-emerald); font-weight: 700;">${slaPercent}%</td>
+                </tr>
+                <tr>
+                  <td>Negotiated Commission</td>
+                  <td style="color: var(--accent-indigo); font-weight: 700;">${commissionPercent}%</td>
+                </tr>
+                <tr>
+                  <td>Uptime Guarantee</td>
+                  <td style="font-weight: 600;">${s.health?.uptime || '99.98%'}</td>
+                </tr>
+                <tr>
+                  <td>Avg Response Latency</td>
+                  <td style="color: var(--accent-amber); font-weight: 700;">${s.metrics?.avgResponseTimeMs || 220}ms</td>
+                </tr>
+                <tr>
+                  <td>Interface Implementation</td>
+                  <td style="font-family: monospace; font-size: 0.75rem;">${s.code === 'TBO' ? 'TboSupplierAdapter' : 'TripjackSupplierAdapter'}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="margin-top: 0.75rem;">
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600;">SUPPORTED CAPABILITIES</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                ${(s.capabilities || []).map(c => `
+                  <span style="font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-secondary);">
+                    ✓ ${c.replace(/_/g, ' ')}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      console.error('Failed to load supplier console:', err);
+      container.innerHTML = `<p style="color: var(--accent-rose);">Failed to load supplier status: ${err.message}</p>`;
+    }
+  }
+
+  async inspectRawNormalization() {
+    const routeSelect = document.getElementById('rawInspectorRoute');
+    const val = routeSelect ? routeSelect.value : 'AMD-DEL';
+    const [origin, destination] = val.split('-');
+
+    const tboBox = document.getElementById('jsonViewerTbo');
+    const tripjackBox = document.getElementById('jsonViewerTripjack');
+    const normBox = document.getElementById('jsonViewerNormalized');
+
+    if (tboBox) tboBox.textContent = '// Querying TBO raw payload...';
+    if (tripjackBox) tripjackBox.textContent = '// Querying TripJack raw payload...';
+    if (normBox) normBox.textContent = '// Running gateway normalization & deduplication...';
+
+    try {
+      const res = await fetch(`${this.apiBase}/suppliers/inspect-raw?origin=${origin}&destination=${destination}`);
+      const data = await res.json();
+
+      if (tboBox) {
+        tboBox.textContent = data.rawVendorPayloads?.tbo ? JSON.stringify(data.rawVendorPayloads.tbo, null, 2) : '// No TBO flights found for this route';
+      }
+      if (tripjackBox) {
+        tripjackBox.textContent = data.rawVendorPayloads?.tripjack ? JSON.stringify(data.rawVendorPayloads.tripjack, null, 2) : '// No TripJack flights found for this route';
+      }
+      if (normBox) {
+        normBox.textContent = data.tixxgoNormalizedModel ? JSON.stringify(data.tixxgoNormalizedModel, null, 2) : '// No normalized flights available';
+      }
+    } catch (err) {
+      console.error('Failed to inspect raw normalization:', err);
+      if (tboBox) tboBox.textContent = '// Error fetching TBO payload: ' + err.message;
+      if (tripjackBox) tripjackBox.textContent = '// Error fetching TripJack payload: ' + err.message;
+      if (normBox) normBox.textContent = '// Error normalizing payload: ' + err.message;
+    }
+  }
+
+  async recalculateScoring() {
+    const sliderPrice = document.getElementById('sliderPrice');
+    const sliderMargin = document.getElementById('sliderMargin');
+    const sliderSla = document.getElementById('sliderSla');
+    const sliderBaggage = document.getElementById('sliderBaggage');
+    const sliderQuality = document.getElementById('sliderQuality');
+
+    const priceWeight = sliderPrice ? Number(sliderPrice.value) : 35;
+    const marginWeight = sliderMargin ? Number(sliderMargin.value) : 20;
+    const slaWeight = sliderSla ? Number(sliderSla.value) : 20;
+    const baggageWeight = sliderBaggage ? Number(sliderBaggage.value) : 15;
+    const qualityWeight = sliderQuality ? Number(sliderQuality.value) : 10;
+
+    const valPrice = document.getElementById('valPrice');
+    const valMargin = document.getElementById('valMargin');
+    const valSla = document.getElementById('valSla');
+    const valBaggage = document.getElementById('valBaggage');
+    const valQuality = document.getElementById('valQuality');
+
+    if (valPrice) valPrice.textContent = `${priceWeight}%`;
+    if (valMargin) valMargin.textContent = `${marginWeight}%`;
+    if (valSla) valSla.textContent = `${slaWeight}%`;
+    if (valBaggage) valBaggage.textContent = `${baggageWeight}%`;
+    if (valQuality) valQuality.textContent = `${qualityWeight}%`;
+
+    const container = document.getElementById('scoringResultsContainer');
+    if (!container) return;
+
+    try {
+      const res = await fetch(`${this.apiBase}/suppliers/test-scoring`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceWeight,
+          marginWeight,
+          slaWeight,
+          baggageWeight,
+          qualityWeight
+        })
+      });
+      const data = await res.json();
+      if (!data.success) return;
+
+      const scores = data.scores;
+      const winner = data.winner; // 'TRIPJACK' or 'TBO'
+
+      const offers = [
+        {
+          code: 'TBO',
+          name: 'Travel Boutique Online',
+          score: scores.TBO.total,
+          fare: 8450,
+          breakdown: scores.TBO.breakdown,
+          details: '15KG Baggage, Refundable, 98.5% SLA, 3.0% Commission'
+        },
+        {
+          code: 'TRIPJACK',
+          name: 'TripJack Wholesaler Network',
+          score: scores.TRIPJACK.total,
+          fare: 8150,
+          breakdown: scores.TRIPJACK.breakdown,
+          details: '20KG Baggage, Non-Refundable, 96.2% SLA, 4.5% Commission'
+        }
+      ];
+
+      container.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          ${offers.map(o => {
+            const isWinner = o.code === winner;
+            return `
+              <div class="score-card ${isWinner ? 'is-winner' : ''}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: 800; font-size: 1.1rem;">${o.name}</span>
+                    <span class="status-badge" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo);">${o.code}</span>
+                  </div>
+                  ${isWinner ? `<span class="winner-badge">🏆 WINNING OFFER</span>` : `<span style="font-size: 0.78rem; color: var(--text-muted);">Competitor</span>`}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin: 0.75rem 0;">
+                  <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Composite Score:</span>
+                    <div style="font-size: 1.6rem; font-weight: 900; color: ${isWinner ? 'var(--accent-emerald)' : 'var(--text-primary)'};">${o.score} / 100</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Customer Fare:</span>
+                    <div style="font-size: 1.2rem; font-weight: 800; color: var(--accent-cyan);">₹${o.fare.toLocaleString()}</div>
+                  </div>
+                </div>
+
+                <div style="border-top: 1px dashed var(--border-color); padding-top: 0.6rem; margin-top: 0.6rem; font-size: 0.8rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: var(--text-muted);">💰 Price Points (${priceWeight}%):</span>
+                    <strong>${o.breakdown.priceScore} pts</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: var(--text-muted);">📈 Margin Points (${marginWeight}%):</span>
+                    <strong>${o.breakdown.marginScore} pts</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: var(--text-muted);">🛡️ SLA Points (${slaWeight}%):</span>
+                    <strong>${o.breakdown.reliabilityScore} pts</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: var(--text-muted);">🧳 Baggage Points (${baggageWeight}%):</span>
+                    <strong>${o.breakdown.baggageScore} pts</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">⚡ Feed Quality Points (${qualityWeight}%):</span>
+                    <strong>${o.breakdown.qualityScore} pts</strong>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 1.5rem;">💡</span>
+          <div style="font-size: 0.85rem; color: var(--text-primary); line-height: 1.4;">
+            <strong>Engine Decision:</strong> <span style="color: var(--accent-emerald); font-weight: 700;">${winner}</span> selected with a lead of <strong>+${data.pointDifference} points</strong>. 
+            <em>${data.selectionReason}</em>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      console.error('Failed to recalculate scoring:', err);
+    }
+  }
+
+  resetScoringWeights() {
+    const sP = document.getElementById('sliderPrice');
+    const sM = document.getElementById('sliderMargin');
+    const sS = document.getElementById('sliderSla');
+    const sB = document.getElementById('sliderBaggage');
+    const sQ = document.getElementById('sliderQuality');
+
+    if (sP) sP.value = 35;
+    if (sM) sM.value = 20;
+    if (sS) sS.value = 20;
+    if (sB) sB.value = 15;
+    if (sQ) sQ.value = 10;
+
+    this.recalculateScoring();
   }
 }
 

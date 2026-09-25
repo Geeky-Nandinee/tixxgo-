@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: tixxgo
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: TIXXGO_SERVICE_FEE
+        value: 299
+      - key: TIXXGO_DEFAULT_PROMO_DISCOUNT
+        value: 200
+      - key: SUPPLIER_TIMEOUT_MS
+        value: 4000

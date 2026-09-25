@@ -1,0 +1,21 @@
+{
+  "name": "tixxgo-platform",
+  "version": "1.0.0",
+  "description": "TIXXGO Travel Platform & API Integrations",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "postinstall": "cd backend && npm install",
+    "start": "node backend/src/server.js",
+    "dev": "node --watch backend/src/server.js",
+    "test": "node --test backend/tests/*.test.js"
+  },
+  "keywords": [
+    "tixxgo",
+    "travel",
+    "booking",
+    "api-integration",
+    "express"
+  ],
+  "author": "TIXXGO Team",
+  "license": "ISC"
+}

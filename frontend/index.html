@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 
@@ -38,27 +38,35 @@
   </header>
 
   <!-- Step Progression Bar -->
+  <!-- Step Progression Bar -->
   <div class="step-container" id="stepContainer">
-    <div class="steps-bar">
-      <div class="step-item active" id="stepIndicator1" onclick="app.goToStep(1)">
-        <div class="step-circle">1</div>
-        <div class="step-label">Search</div>
-      </div>
-      <div class="step-item" id="stepIndicator2">
-        <div class="step-circle">2</div>
-        <div class="step-label">Revalidate</div>
-      </div>
-      <div class="step-item" id="stepIndicator3">
-        <div class="step-circle">3</div>
-        <div class="step-label">Travellers</div>
-      </div>
-      <div class="step-item" id="stepIndicator4">
-        <div class="step-circle">4</div>
-        <div class="step-label">Payment</div>
-      </div>
-      <div class="step-item" id="stepIndicator5">
-        <div class="step-circle">5</div>
-        <div class="step-label">Confirmed</div>
+    <div class="steps-card">
+      <div class="steps-bar">
+        <!-- Connecting Line Background Track -->
+        <div class="steps-track-bg"></div>
+        <!-- Active Progress Fill Line -->
+        <div class="steps-track-fill" id="stepProgressFill"></div>
+
+        <div class="step-item active" id="stepIndicator1" onclick="app.goToStep(1)">
+          <div class="step-circle">1</div>
+          <div class="step-label">Search</div>
+        </div>
+        <div class="step-item" id="stepIndicator2" onclick="app.goToStep(2)">
+          <div class="step-circle">2</div>
+          <div class="step-label">Revalidate</div>
+        </div>
+        <div class="step-item" id="stepIndicator3" onclick="app.goToStep(3)">
+          <div class="step-circle">3</div>
+          <div class="step-label">Travellers</div>
+        </div>
+        <div class="step-item" id="stepIndicator4" onclick="app.goToStep(4)">
+          <div class="step-circle">4</div>
+          <div class="step-label">Payment</div>
+        </div>
+        <div class="step-item" id="stepIndicator5" onclick="app.goToStep(5)">
+          <div class="step-circle">5</div>
+          <div class="step-label">Confirmed</div>
+        </div>
       </div>
     </div>
   </div>
@@ -273,14 +281,174 @@
     <!-- TAB 3: ARCHITECTURE & MULTI-SUPPLIER STRATEGY -->
     <div id="tabArchitecture" class="tab-pane" style="display: none;">
       <section class="glass-card">
-        <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem;">
-          <span>🏛️</span> Supplier Gateway Architecture & Deduplication Engine
-        </h2>
-        
-        <div class="architecture-card">
-          <h3 style="font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 0.75rem;">1. Architectural Decoupling Diagram</h3>
+        <!-- Hero Banner -->
+        <div class="gateway-hero-banner">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div class="gateway-badge"><span>⚡</span> Live Architecture Console</div>
+              <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0.4rem 0;">🏛️ Multi-Supplier Gateway & Deduplication Engine</h2>
+              <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 780px;">
+                Production-grade adapter architecture running simultaneous live connections to multiple flight aggregators (TBO & TripJack). Inspect raw vendor payloads, observe real-time canonical normalization, and test the multi-factor deduplication scoring algorithm.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn-primary" onclick="app.loadSupplierConsole()" style="padding: 8px 16px; font-size: 0.85rem;">
+                <span>🔄</span> Refresh Status
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 1: Registered Supplier Adapters -->
+        <div class="architecture-card" style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-size: 1.15rem; color: var(--accent-cyan); margin: 0; display: flex; align-items: center; gap: 8px;">
+              <span>🔌</span> 1. Active Supplier Adapters & Health Metrics
+            </h3>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Decoupled via <code>ISupplierAdapter</code></span>
+          </div>
+          <div id="supplierCardsContainer" class="supplier-cards-grid">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Loading registered supplier adapters...</p>
+          </div>
+        </div>
+
+        <!-- Section 2: Live Raw vs Normalized Model Inspector -->
+        <div class="architecture-card" style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; color: var(--accent-indigo); margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span>🔬</span> 2. Live Raw Vendor Payload vs Canonical Domain Model
+              </h3>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 4px 0 0 0;">
+                Observe how heterogeneous proprietary vendor responses are mapped into Tixxgo's canonical schema in real time.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <select id="rawInspectorRoute" class="form-control" style="width: auto; padding: 6px 12px; font-size: 0.85rem;" onchange="app.inspectRawNormalization()">
+                <option value="AMD-DEL">AMD → DEL (Air India / IndiGo)</option>
+                <option value="BOM-BLR">BOM → BLR (Akasa / Vistara)</option>
+                <option value="DEL-BOM">DEL → BOM (IndiGo / SpiceJet)</option>
+                <option value="BLR-AMD">BLR → AMD (IndiGo / Air India)</option>
+              </select>
+              <button class="btn-primary" onclick="app.inspectRawNormalization()" style="padding: 7px 14px; font-size: 0.85rem;">
+                <span>🔍</span> Inspect Live
+              </button>
+            </div>
+          </div>
+
+          <div class="raw-inspector-grid">
+            <!-- Col 1: Raw TBO -->
+            <div class="json-viewer-card">
+              <div class="json-viewer-header">
+                <span class="json-viewer-title" style="color: #38bdf8;">
+                  <span style="font-size: 1rem;">✈</span> Raw TBO Payload (Vendor A)
+                </span>
+                <span class="json-viewer-tag" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Proprietary Schema</span>
+              </div>
+              <pre id="jsonViewerTbo" class="json-viewer-body">Click "Inspect Live" to query...</pre>
+            </div>
+
+            <!-- Col 2: Raw TripJack -->
+            <div class="json-viewer-card">
+              <div class="json-viewer-header">
+                <span class="json-viewer-title" style="color: #a855f7;">
+                  <span style="font-size: 1rem;">🌐</span> Raw TripJack Payload (Vendor B)
+                </span>
+                <span class="json-viewer-tag" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">Wholesaler Format</span>
+              </div>
+              <pre id="jsonViewerTripjack" class="json-viewer-body">Click "Inspect Live" to query...</pre>
+            </div>
+
+            <!-- Col 3: Tixxgo Normalized Domain Model -->
+            <div class="json-viewer-card" style="border-color: rgba(16, 185, 129, 0.4);">
+              <div class="json-viewer-header" style="background: rgba(16, 185, 129, 0.1);">
+                <span class="json-viewer-title" style="color: #10b981;">
+                  <span style="font-size: 1rem;">✨</span> Tixxgo Canonical Model (Deduplicated)
+                </span>
+                <span class="json-viewer-tag" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Unified Domain</span>
+              </div>
+              <pre id="jsonViewerNormalized" class="json-viewer-body">Click "Inspect Live" to query...</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Deduplication & Scoring Playground -->
+        <div class="architecture-card" style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; color: var(--accent-amber); margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span>⚖️</span> 3. Interactive Deduplication & Scoring Playground (Task 9)
+              </h3>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 4px 0 0 0;">
+                Adjust multi-factor weights below to test how the engine dynamically ranks duplicate flight offers from competing suppliers.
+              </p>
+            </div>
+            <button class="btn-secondary" onclick="app.resetScoringWeights()" style="padding: 6px 12px; font-size: 0.8rem;">
+              Reset Default Weights
+            </button>
+          </div>
+
+          <div class="scoring-playground-box">
+            <!-- Slider controls -->
+            <div class="sliders-grid">
+              <div class="slider-group">
+                <div class="slider-header">
+                  <label for="sliderPrice">💰 Price Factor</label>
+                  <span class="slider-value" id="valPrice">35%</span>
+                </div>
+                <input type="range" id="sliderPrice" min="0" max="100" value="35" oninput="app.recalculateScoring()">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Favors lower customer total</small>
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-header">
+                  <label for="sliderMargin">📈 Margin Factor</label>
+                  <span class="slider-value" id="valMargin">20%</span>
+                </div>
+                <input type="range" id="sliderMargin" min="0" max="100" value="20" oninput="app.recalculateScoring()">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Favors higher commission</small>
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-header">
+                  <label for="sliderSla">🛡️ Reliability SLA</label>
+                  <span class="slider-value" id="valSla">20%</span>
+                </div>
+                <input type="range" id="sliderSla" min="0" max="100" value="20" oninput="app.recalculateScoring()">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Favors confirmation rate</small>
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-header">
+                  <label for="sliderBaggage">🧳 Baggage Weight</label>
+                  <span class="slider-value" id="valBaggage">15%</span>
+                </div>
+                <input type="range" id="sliderBaggage" min="0" max="100" value="15" oninput="app.recalculateScoring()">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Favors higher check-in allowance</small>
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-header">
+                  <label for="sliderQuality">⚡ Feed Quality</label>
+                  <span class="slider-value" id="valQuality">10%</span>
+                </div>
+                <input type="range" id="sliderQuality" min="0" max="100" value="10" oninput="app.recalculateScoring()">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Favors response speed & reliability</small>
+              </div>
+            </div>
+
+            <!-- Live Head-to-Head Comparison Output -->
+            <div style="margin-top: 1.5rem;" id="scoringResultsContainer">
+              <!-- Injected by recalculateScoring() -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Architectural Decoupling Diagram -->
+        <div class="architecture-card" style="margin-top: 1.5rem;">
+          <h3 style="font-size: 1.15rem; color: var(--accent-cyan); margin-bottom: 0.75rem;">4. Architectural Decoupling Diagram</h3>
           <pre class="architecture-code-box">
-                                TIXXGO FRONTEND (Angular)
+                                TIXXGO FRONTEND (Angular / SPA)
                                            │
                                            ▼ (Normalized JSON REST APIs)
                            EXPRESS CONTROLLERS & PRICING ENGINE
@@ -298,31 +466,6 @@
           <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.75rem;">
             <strong>Zero Upstream Refactoring:</strong> Adding Supplier #2 (TripJack) or Supplier #3 (Amadeus) only requires implementing the <code>ISupplierAdapter</code> interface. The pricing engine, database schemas, booking state machines, and frontend consumers remain completely untouched.
           </p>
-        </div>
-
-        <div class="architecture-card">
-          <h3 style="font-size: 1.1rem; color: var(--accent-amber); margin-bottom: 0.75rem;">2. Deduplication & Scoring Formula</h3>
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
-            When the same flight (e.g. Air India AI101 AMD → DEL) is returned by both TBO (INR 8,450) and TripJack (INR 8,150), Tixxgo computes a multi-factor score:
-          </p>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-            <div class="scoring-factor-card">
-              <strong style="color: var(--accent-cyan);">Price Factor (35%)</strong>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Favors lower customer total (TripJack 8,150 wins +300 INR benefit).</div>
-            </div>
-            <div class="scoring-factor-card">
-              <strong style="color: var(--accent-indigo);">Margin Factor (20%)</strong>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Negotiated commission (TripJack 4.5% vs TBO 3.0%).</div>
-            </div>
-            <div class="scoring-factor-card">
-              <strong style="color: var(--accent-emerald);">Reliability SLA (20%)</strong>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Historical PNR confirmation rate (TBO 98.5% vs TripJack 96.2%).</div>
-            </div>
-            <div class="scoring-factor-card">
-              <strong style="color: var(--accent-purple);">Baggage Allowance (15%)</strong>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">Check-in baggage (TripJack provides 20 KG vs TBO 15 KG).</div>
-            </div>
-          </div>
         </div>
       </section>
     </div>
@@ -389,6 +532,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

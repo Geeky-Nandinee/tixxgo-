@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const flightRoutes = require('./routes/flight.routes');
 const bookingRoutes = require('./routes/booking.routes');
+const supplierRoutes = require('./routes/supplier.routes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -26,6 +27,7 @@ app.get('/health', (req, res) => {
 // Core API endpoints
 app.use('/api/flights', flightRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/suppliers', supplierRoutes);
 
 // Fallback for SPA routing
 app.get('*', (req, res, next) => {
