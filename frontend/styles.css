@@ -1849,3 +1849,461 @@ body {
   align-items: center;
   gap: 4px;
 }
+
+/* ==========================================================================
+   VISUAL HERO SECTION & PHOTOGRAPHIC TRAVEL EXPERIENCE
+   ========================================================================== */
+.travel-hero-section {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  padding: 3.5rem 2.5rem;
+  background: #090d16 url('assets/images/hero-airplane.jpg') center 40% / cover no-repeat;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.6);
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(9, 13, 22, 0.94) 0%, rgba(15, 23, 42, 0.82) 45%, rgba(14, 165, 233, 0.35) 100%);
+  backdrop-filter: blur(2px);
+  z-index: 1;
+}
+
+[data-theme="light"] .travel-hero-section {
+  border-color: rgba(14, 165, 233, 0.25);
+  box-shadow: 0 15px 35px -10px rgba(14, 165, 233, 0.2);
+}
+
+[data-theme="light"] .hero-bg-overlay {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(14, 165, 233, 0.45) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 780px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #7dd3fc;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(8px);
+}
+
+.hero-badge-pulse {
+  width: 8px;
+  height: 8px;
+  background: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #38bdf8;
+  animation: pulse 2s infinite;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.hero-highlight-text {
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.05rem;
+  color: rgba(241, 245, 249, 0.9);
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+  max-width: 680px;
+}
+
+.hero-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero-highlight-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f8fafc;
+  backdrop-filter: blur(6px);
+}
+
+.pill-icon {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .travel-hero-section {
+    padding: 2.25rem 1.5rem;
+  }
+  .hero-title {
+    font-size: 1.85rem;
+  }
+}
+
+/* ==========================================================================
+   TRENDING DESTINATIONS SHOWCASE SECTION
+   ========================================================================== */
+.trending-destinations-section {
+  margin: 3rem 0 2.5rem 0;
+}
+
+.destinations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.section-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.destinations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.destination-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.destination-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 20px 35px -10px rgba(14, 165, 233, 0.25);
+}
+
+.dest-img-container {
+  position: relative;
+  height: 190px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.dest-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.destination-card:hover .dest-img {
+  transform: scale(1.08);
+}
+
+.dest-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+.dest-price-pill {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  z-index: 2;
+}
+
+.dest-card-content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.dest-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.dest-card-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.dest-card-country {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.dest-route-code {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.dest-card-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.dest-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.dest-flight-info {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.dest-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.destination-card:hover .dest-action-btn {
+  transform: translateX(4px);
+  color: var(--accent-indigo);
+}
+
+/* ==========================================================================
+   FLIGHT FILTER & SORT CHIPS BAR
+   ========================================================================== */
+.flight-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 0.75rem;
+}
+
+.filter-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent-cyan);
+  color: var(--text-primary);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.filter-chip.active {
+  background: var(--accent-cyan);
+  color: #090d16;
+  border-color: var(--accent-cyan);
+  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.35);
+}
+
+[data-theme="light"] .filter-chip.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);
+}
+
+/* ==========================================================================
+   FLIGHT CARD DETAILS & AMENITIES EXPANDABLE DRAWER
+   ========================================================================== */
+.flight-card-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.flight-amenities-toggle {
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 0;
+  transition: opacity 0.2s ease;
+}
+
+.flight-amenities-toggle:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.flight-amenities-drawer {
+  grid-column: 1 / -1;
+  display: none;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  margin-top: 0.5rem;
+  animation: fadeIn 0.25s ease;
+}
+
+[data-theme="light"] .flight-amenities-drawer {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.flight-amenities-drawer.is-open {
+  display: block;
+}
+
+.amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.amenity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.amenity-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.amenity-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.amenity-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.fare-rules-box {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.fare-rule-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+[data-theme="light"] .fare-rule-badge {
+  background: #e2e8f0;
+}
+

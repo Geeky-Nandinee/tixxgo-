@@ -44,6 +44,8 @@ class TixxgoApp {
     this.currentBooking = null;
     this.allBookings = [];
     this.isMultiSupplierEnabled = true;
+    this.activeFlightFilter = 'all';
+    this.lastSearchMeta = { suppliersQueried: ['TBO', 'TripJack'] };
 
     // Simulation states
     this.simulationFlags = {
@@ -482,20 +484,125 @@ class TixxgoApp {
   }
 
   /**
+   * Destination Card Click -> Auto fill & Search
+   */
+  selectDestination(originCode, destCode, destLabel) {
+    const originAirport = POPULAR_AIRPORTS.find(a => a.code === originCode) || { city: originCode, code: originCode };
+    const destAirport = POPULAR_AIRPORTS.find(a => a.code === destCode) || { city: destLabel || destCode, code: destCode };
+
+    const origInput = document.getElementById('inputOrigin');
+    const origText = document.getElementById('inputOriginText');
+    const destInput = document.getElementById('inputDestination');
+    const destText = document.getElementById('inputDestText');
+
+    if (origInput) origInput.value = originAirport.code;
+    if (origText) origText.value = `${originAirport.city} (${originAirport.code})`;
+    if (destInput) destInput.value = destAirport.code;
+    if (destText) destText.value = `${destAirport.city} (${destAirport.code})`;
+
+    // Reset filter to all
+    this.activeFlightFilter = 'all';
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-filter') === 'all');
+    });
+
+    // Smooth scroll to search form
+    const searchSection = document.getElementById('searchSection');
+    if (searchSection) {
+      searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    this.handleSearch();
+  }
+
+  /**
+   * Set Active Flight Filter & Sort
+   */
+  setFlightFilter(filterType) {
+    this.activeFlightFilter = filterType;
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-filter') === filterType);
+    });
+    this.renderFilteredFlights();
+  }
+
+  /**
+   * Toggle Flight Details & Amenities Drawer
+   */
+  toggleFlightAmenities(flightId) {
+    const drawer = document.getElementById(`amenities_${flightId}`);
+    const toggleBtn = document.getElementById(`toggleBtn_${flightId}`);
+    if (!drawer) return;
+    const isOpen = drawer.classList.toggle('is-open');
+    if (toggleBtn) {
+      toggleBtn.innerHTML = isOpen 
+        ? `<span>Flight Details & Amenities ▴</span>` 
+        : `<span>Flight Details & Amenities ▾</span>`;
+    }
+  }
+
+  /**
    * Render Normalized Flight Results
    */
   renderFlightResults(flights, meta) {
+    this.lastSearchMeta = meta || this.lastSearchMeta || { suppliersQueried: ['TBO', 'TripJack'] };
+    this.searchResults = flights || [];
+    this.renderFilteredFlights();
+  }
+
+  /**
+   * Render Filtered and Sorted Flight Results
+   */
+  renderFilteredFlights() {
     const resultsSec = document.getElementById('resultsSection');
     const countEl = document.getElementById('resultsCount');
     const suppliersText = document.getElementById('suppliersQueriedText');
     const container = document.getElementById('flightListContainer');
 
     resultsSec.style.display = 'block';
-    countEl.textContent = `${flights.length} Available Flights`;
-    suppliersText.textContent = `Queried Suppliers: ${meta.suppliersQueried.join(', ')}`;
+    if (this.lastSearchMeta && this.lastSearchMeta.suppliersQueried) {
+      suppliersText.textContent = `Queried Suppliers: ${this.lastSearchMeta.suppliersQueried.join(', ')}`;
+    }
+
+    if (!this.searchResults || !this.searchResults.length) {
+      countEl.textContent = '0 Available Flights';
+      container.innerHTML = '<div style="text-align: center; padding: 3rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">No flights found for this route and date. Try selecting another destination above.</div>';
+      return;
+    }
+
+    let list = [...this.searchResults];
+
+    if (this.activeFlightFilter === 'cheapest') {
+      list.sort((a, b) => a.pricing.customerPrice.totalAmount - b.pricing.customerPrice.totalAmount);
+    } else if (this.activeFlightFilter === 'fastest') {
+      const getMinutes = (d) => {
+        const m = (d || '').match(/(?:(\d+)h)?\s*(?:(\d+)m)?/);
+        if (!m) return 999;
+        const h = parseInt(m[1] || '0', 10);
+        const mins = parseInt(m[2] || '0', 10);
+        return h * 60 + mins;
+      };
+      list.sort((a, b) => getMinutes(a.duration) - getMinutes(b.duration));
+    } else if (this.activeFlightFilter === 'nonstop') {
+      list = list.filter(f => !f.stops || f.stops === 0 || (f.duration && !f.duration.includes('stop')));
+    } else if (this.activeFlightFilter === 'refundable') {
+      list = list.filter(f => Boolean(f.isRefundable));
+    } else if (this.activeFlightFilter === 'morning') {
+      list = list.filter(f => {
+        const h = new Date(f.departureTime).getHours();
+        return h >= 6 && h < 12;
+      });
+    } else if (this.activeFlightFilter === 'evening') {
+      list = list.filter(f => {
+        const h = new Date(f.departureTime).getHours();
+        return h >= 18 && h <= 23;
+      });
+    }
+
+    countEl.textContent = `${list.length} of ${this.searchResults.length} Available Flights`;
     container.innerHTML = '';
 
-    flights.forEach(f => {
+    list.forEach(f => {
       const depTime = new Date(f.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
       const arrTime = new Date(f.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
       const custPrice = f.pricing.customerPrice;
@@ -564,6 +671,61 @@ class TixxgoApp {
         </div>
 
         ${multiSupplierHtml}
+
+        <!-- Interactive Amenities & Details Footer -->
+        <div class="flight-card-footer">
+          <button type="button" class="flight-amenities-toggle" id="toggleBtn_${f.id}" onclick="app.toggleFlightAmenities('${f.id}')">
+            <span>Flight Details & Amenities ▾</span>
+          </button>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">
+            Supplier: <strong>${f.supplierCode}</strong>
+          </span>
+        </div>
+
+        <!-- Expandable Amenities Drawer -->
+        <div class="flight-amenities-drawer" id="amenities_${f.id}">
+          <div class="amenities-grid">
+            <div class="amenity-item">
+              <span class="amenity-icon">🧳</span>
+              <div>
+                <div class="amenity-label">Baggage Allowance</div>
+                <div class="amenity-value">${f.baggage?.cabin || '7 kg Cabin'} • ${f.baggage?.checkIn || '15 kg Check-in'}</div>
+              </div>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon">🍽️</span>
+              <div>
+                <div class="amenity-label">In-Flight Dining</div>
+                <div class="amenity-value">${f.cabinClass === 'BUSINESS' ? 'Complimentary Gourmet Meal' : 'Pre-book Meals & Snacks'}</div>
+              </div>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon">⚡</span>
+              <div>
+                <div class="amenity-label">Connectivity & Power</div>
+                <div class="amenity-value">In-Seat USB & Entertainment</div>
+              </div>
+            </div>
+            <div class="amenity-item">
+              <span class="amenity-icon">💺</span>
+              <div>
+                <div class="amenity-label">Aircraft & Pitch</div>
+                <div class="amenity-value">Standard 30" Pitch • A320 / B737</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fare-rules-box">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <span class="fare-rule-badge">🛡️ Cancellation: ${f.isRefundable ? 'Standard fee before 24h' : 'Non-refundable fare'}</span>
+              <span class="fare-rule-badge">🔄 Reschedule: Fare difference + ₹1,500</span>
+              <span class="fare-rule-badge">⚡ Instant Refund Guarantee</span>
+            </div>
+            <div>
+              <span style="color: var(--accent-cyan); font-weight: 700;">24x7 Tixxgo Priority Support Included</span>
+            </div>
+          </div>
+        </div>
       `;
 
       container.appendChild(card);

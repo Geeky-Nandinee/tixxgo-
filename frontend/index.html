@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
@@ -77,6 +77,42 @@
     <!-- TAB 1: FLIGHT SEARCH & JOURNEY -->
     <div id="tabSearch" class="tab-pane active">
 
+      <!-- Travel Visual Hero Banner -->
+      <section class="travel-hero-section">
+        <div class="hero-bg-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="hero-badge-pulse"></span>
+            <span>⚡ Multi-Supplier Airline Aggregation & Dynamic Pricing</span>
+          </div>
+          <h1 class="hero-title">
+            Fly Smarter. Book Faster. <br>
+            <span class="hero-highlight-text">Live Fares Guaranteed.</span>
+          </h1>
+          <p class="hero-subtitle">
+            Search normalized real-time inventory across global GDS & LCC suppliers (TBO, TripJack). Zero hidden charges, instant seat revalidation, and automated PNR lifecycle.
+          </p>
+          <div class="hero-highlights">
+            <div class="hero-highlight-pill">
+              <span class="pill-icon">✈️</span>
+              <span>28+ Top Airports</span>
+            </div>
+            <div class="hero-highlight-pill">
+              <span class="pill-icon">⚡</span>
+              <span>Sub-Second Multi-GDS Aggregation</span>
+            </div>
+            <div class="hero-highlight-pill">
+              <span class="pill-icon">🛡️</span>
+              <span>100% Price Lock & Revalidation</span>
+            </div>
+            <div class="hero-highlight-pill">
+              <span class="pill-icon">🎫</span>
+              <span>Instant PNR Issuance</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Step 1: Search Form -->
       <section class="glass-card" id="searchSection">
         <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
@@ -137,12 +173,143 @@
         </form>
       </section>
 
+      <!-- Trending Destinations Visual Showcase -->
+      <section class="trending-destinations-section" id="trendingDestinationsSection">
+        <div class="destinations-header">
+          <div>
+            <div class="section-tag">✨ POPULAR GETAWAYS</div>
+            <h2 class="section-title">Trending Destinations & Handpicked Routes</h2>
+            <p class="section-subtitle">Select any destination card to instantly autofill route & explore live flights</p>
+          </div>
+        </div>
+
+        <div class="destinations-grid">
+          <!-- Destination 1: Goa -->
+          <div class="destination-card" onclick="app.selectDestination('AMD', 'GOA', 'Goa (GOA)')">
+            <div class="dest-img-container">
+              <img src="assets/images/destination-goa.jpg" alt="Goa Beaches" class="dest-img" loading="lazy">
+              <span class="dest-badge">🏖️ Beach Leisure</span>
+              <span class="dest-price-pill">from ₹3,499</span>
+            </div>
+            <div class="dest-card-content">
+              <div class="dest-card-header">
+                <div>
+                  <h3 class="dest-card-title">Goa</h3>
+                  <p class="dest-card-country">India • Dabolim / Mopa</p>
+                </div>
+                <div class="dest-route-code">AMD ⇄ GOA</div>
+              </div>
+              <p class="dest-card-desc">Sun-kissed coastline, Portuguese heritage, and vibrant beach shacks.</p>
+              <div class="dest-card-footer">
+                <span class="dest-flight-info">⏱️ ~1h 45m Non-stop</span>
+                <button class="dest-action-btn" type="button">Book Now →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Destination 2: Dubai -->
+          <div class="destination-card" onclick="app.selectDestination('BOM', 'DXB', 'Dubai (DXB)')">
+            <div class="dest-img-container">
+              <img src="assets/images/destination-dubai.jpg" alt="Dubai Skyline" class="dest-img" loading="lazy">
+              <span class="dest-badge">🌆 Luxury & Skyline</span>
+              <span class="dest-price-pill">from ₹11,250</span>
+            </div>
+            <div class="dest-card-content">
+              <div class="dest-card-header">
+                <div>
+                  <h3 class="dest-card-title">Dubai</h3>
+                  <p class="dest-card-country">United Arab Emirates</p>
+                </div>
+                <div class="dest-route-code">BOM ⇄ DXB</div>
+              </div>
+              <p class="dest-card-desc">Architectural wonders, desert safaris, and world-class shopping plazas.</p>
+              <div class="dest-card-footer">
+                <span class="dest-flight-info">⏱️ ~3h 25m Direct</span>
+                <button class="dest-action-btn" type="button">Book Now →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Destination 3: Kashmir -->
+          <div class="destination-card" onclick="app.selectDestination('DEL', 'SXR', 'Srinagar (SXR)')">
+            <div class="dest-img-container">
+              <img src="assets/images/destination-kashmir.jpg" alt="Srinagar Dal Lake Kashmir" class="dest-img" loading="lazy">
+              <span class="dest-badge">🏔️ Scenic Valleys</span>
+              <span class="dest-price-pill">from ₹4,150</span>
+            </div>
+            <div class="dest-card-content">
+              <div class="dest-card-header">
+                <div>
+                  <h3 class="dest-card-title">Srinagar & Kashmir</h3>
+                  <p class="dest-card-country">India • Dal Lake & Gulmarg</p>
+                </div>
+                <div class="dest-route-code">DEL ⇄ SXR</div>
+              </div>
+              <p class="dest-card-desc">Shikara rides on Dal Lake, snow-capped peaks, and tranquil pine meadows.</p>
+              <div class="dest-card-footer">
+                <span class="dest-flight-info">⏱️ ~1h 35m Non-stop</span>
+                <button class="dest-action-btn" type="button">Book Now →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Destination 4: Singapore -->
+          <div class="destination-card" onclick="app.selectDestination('BLR', 'SIN', 'Singapore (SIN)')">
+            <div class="dest-img-container">
+              <img src="assets/images/destination-singapore.jpg" alt="Singapore Marina Bay" class="dest-img" loading="lazy">
+              <span class="dest-badge">🌿 Garden City</span>
+              <span class="dest-price-pill">from ₹13,900</span>
+            </div>
+            <div class="dest-card-content">
+              <div class="dest-card-header">
+                <div>
+                  <h3 class="dest-card-title">Singapore</h3>
+                  <p class="dest-card-country">Southeast Asia • Changi Hub</p>
+                </div>
+                <div class="dest-route-code">BLR ⇄ SIN</div>
+              </div>
+              <p class="dest-card-desc">Futuristic Supertrees, culinary marvels, and world's best rated airport hub.</p>
+              <div class="dest-card-footer">
+                <span class="dest-flight-info">⏱️ ~4h 30m Direct</span>
+                <button class="dest-action-btn" type="button">Book Now →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Search Results Feed -->
       <section id="resultsSection" style="display: none; margin-top: 2rem;">
         <div class="results-header">
-          <div class="results-count" id="resultsCount">0 Flights Found</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);" id="suppliersQueriedText">
-            Suppliers: TBO, TripJack
+          <div>
+            <div class="results-count" id="resultsCount">0 Flights Found</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);" id="suppliersQueriedText">
+              Suppliers: TBO, TripJack
+            </div>
+          </div>
+          <!-- Sort & Filter Pills Bar -->
+          <div class="flight-filter-chips" id="flightFilterChips">
+            <button type="button" class="filter-chip active" data-filter="all" onclick="app.setFlightFilter('all')">
+              <span>All Flights</span>
+            </button>
+            <button type="button" class="filter-chip" data-filter="cheapest" onclick="app.setFlightFilter('cheapest')">
+              <span>⚡ Cheapest First</span>
+            </button>
+            <button type="button" class="filter-chip" data-filter="fastest" onclick="app.setFlightFilter('fastest')">
+              <span>🚀 Fastest</span>
+            </button>
+            <button type="button" class="filter-chip" data-filter="nonstop" onclick="app.setFlightFilter('nonstop')">
+              <span>🟢 Non-Stop</span>
+            </button>
+            <button type="button" class="filter-chip" data-filter="refundable" onclick="app.setFlightFilter('refundable')">
+              <span>🛡️ Refundable</span>
+            </button>
+            <button type="button" class="filter-chip" data-filter="morning" onclick="app.setFlightFilter('morning')">
+              <span>🌅 Morning (6-12)</span>
+            </button>
+            <button type="button" class="filter-chip" data-filter="evening" onclick="app.setFlightFilter('evening')">
+              <span>🌙 Evening (18-24)</span>
+            </button>
           </div>
         </div>
 
