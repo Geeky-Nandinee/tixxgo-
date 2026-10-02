@@ -18,9 +18,9 @@ test('Task 4 & 5: Happy path booking flow creates TXG reference and confirms boo
     travellers: [
       {
         title: 'MR',
-        firstName: 'Rahul',
-        lastName: 'Sharma',
-        email: 'rahul.sharma@example.com',
+        firstName: 'Test',
+        lastName: 'Passenger',
+        email: 'test.passenger@example.com',
         phone: '+919876543210'
       }
     ],

@@ -3,10 +3,8 @@ const CancellationService = require('../services/cancellation.service');
 const db = require('../config/database');
 
 class BookingController {
-  /**
-   * Task 4, 5, 6: Create Booking Flow
-   * POST /api/bookings
-   */
+
+  // POST /api/bookings
   static async createBooking(req, res, next) {
     try {
       const idempotencyKey = req.headers['x-idempotency-key'] || req.body.idempotencyKey;

@@ -36,9 +36,9 @@ export class AppComponent implements OnInit {
 
   traveller: Traveller = {
     title: 'MR',
-    firstName: 'Rahul',
-    lastName: 'Sharma',
-    email: 'rahul.sharma@example.com',
+    firstName: 'Test',
+    lastName: 'Passenger',
+    email: 'test.passenger@example.com',
     phone: '+919876543210'
   };
 
